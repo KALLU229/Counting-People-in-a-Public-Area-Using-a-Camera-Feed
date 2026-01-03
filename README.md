@@ -1,2 +1,2 @@
 # Counting-People-in-a-Public-Area-Using-a-Camera-Feed
-This project implements an automated system to detect and count individuals in public spaces using live camera feeds or video files. By leveraging computer vision and deep learning, the system provides accurate, real-time metrics for occupancy monitoring, foot traffic analysis, and safety management.
+An AI-based crowd counting and monitoring system built with YOLO and DeepSORT. It detects and tracks people in real-time, maintains entry/exit counts, stores activity logs, and supports live video monitoring with database integration.
