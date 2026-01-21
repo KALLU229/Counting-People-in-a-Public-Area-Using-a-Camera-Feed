@@ -1,0 +1,1 @@
+ALERT_LIMIT = 10   # change this value as you want

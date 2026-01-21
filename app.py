@@ -6,6 +6,9 @@ from views.dashboard import dashboard
 from views.detection import detection_page
 from views.live_camera import live_camera_page
 from views.admin_panel import admin_panel
+from config import ALERT_LIMIT
+
+
 
 
 # ================== APP INIT ==================
