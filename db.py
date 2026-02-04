@@ -47,6 +47,19 @@ def init_db():
         timestamp TEXT
     )""")
 
+    # Settings table for storing editable runtime configuration like alert threshold
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS settings (
+        key TEXT PRIMARY KEY,
+        value TEXT
+    )""")
+
+    # ensure a default alert limit exists
+    cur.execute(
+        "INSERT OR IGNORE INTO settings(key, value) VALUES (?, ?)",
+        ("alert_limit", str(10))
+    )
+
     conn.commit()
     conn.close()
 
@@ -154,6 +167,41 @@ def delete_user(user_id):
 
     log("INFO", f"User deleted (ID={user_id})")
 
+
+
+def get_setting(key, default=None):
+    """Return the value for `key` from settings or `default` if missing."""
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("SELECT value FROM settings WHERE key=?", (key,))
+    row = cur.fetchone()
+    conn.close()
+    return row[0] if row else default
+
+
+def set_setting(key, value):
+    """Insert or update a setting value."""
+    conn = get_conn()
+    conn.execute(
+        "INSERT OR REPLACE INTO settings(key, value) VALUES (?, ?)",
+        (key, str(value))
+    )
+    conn.commit()
+    conn.close()
+    log("INFO", f"Setting updated: {key}={value}")
+
+
+def get_alert_limit():
+    """Return the alert limit as int (default 10)."""
+    val = get_setting("alert_limit", "10")
+    try:
+        return int(val)
+    except:
+        return 10
+
+
+def set_alert_limit(limit):
+    set_setting("alert_limit", int(limit))
 
 
 # ================== COUNTER HISTORY ==================
