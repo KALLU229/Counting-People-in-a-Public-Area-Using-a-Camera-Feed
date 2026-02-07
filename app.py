@@ -6,6 +6,7 @@ from views.dashboard import dashboard
 from views.detection import detection_page
 from views.live_camera import live_camera_page
 from views.admin_panel import admin_panel
+from auth.jwt_utils import verify_token
 
 
 # ================== APP INIT ==================
@@ -17,53 +18,39 @@ st.set_page_config(
 init_db()
 create_default_admin()
 
+# ================== AUTH UTIL ==================
+def get_current_user():
+    token = st.session_state.get("jwt")
+    if not token:
+        return None
+    return verify_token(token)
+
 
 # ================== SESSION ==================
-if "logged_in" not in st.session_state:
-    st.session_state.logged_in = False
+user = get_current_user()
 
-if "role" not in st.session_state:
-    st.session_state.role = None
-
-if "email" not in st.session_state:
-    st.session_state.email = None
-
-
-# ================== AUTH FLOW ==================
-if not st.session_state.logged_in:
-    auth_page = st.sidebar.radio("Authentication", ["Login", "Register"])
-
-    if auth_page == "Login":
-        login_page()
-    else:
-        register_page()
-
+if not user:
+    page = st.sidebar.radio("Auth", ["Login", "Register"])
+    login_page() if page == "Login" else register_page()
 else:
-    # -------- SIDEBAR --------
-    st.sidebar.success(f"Logged in as {st.session_state.email}")
+    st.sidebar.success(f"Logged in as {user['email']}")
 
     if st.sidebar.button("Logout"):
-        st.session_state.logged_in = False
-        st.session_state.role = None
-        st.session_state.email = None
-        st.experimental_rerun()
+        st.session_state.pop("jwt", None)
+        st.rerun()
 
-    # -------- MENU --------
-    menu = ["Dashboard", "Detection", "Live Camera"]
-    if st.session_state.role == "admin":
-        menu.append("Admin Panel")
+    pages = ["Dashboard", "Detection", "Live Camera"]
+    if user["role"] == "admin":
+        pages.append("Admin Panel")
 
-    selected = st.sidebar.radio("Menu", menu)
+    page = st.sidebar.radio("Menu", pages)
 
-    # -------- ROUTING --------
-    if selected == "Dashboard":
+    if page == "Dashboard":
         dashboard()
-
-    elif selected == "Detection":
+    elif page == "Detection":
         detection_page()
-
-    elif selected == "Live Camera":
+    elif page == "Live Camera":
         live_camera_page()
-
-    elif selected == "Admin Panel":
+    elif page == "Admin Panel":
+        admin_panel()
         admin_panel()

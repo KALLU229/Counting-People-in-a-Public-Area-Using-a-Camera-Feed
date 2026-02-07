@@ -229,9 +229,9 @@ footer {visibility: hidden;}
         
         st.markdown('<div class="register-title">Create Account</div>', unsafe_allow_html=True)
         
-        email = st.text_input("Email", placeholder="name@example.com")
-        password = st.text_input("Password", type="password", placeholder="••••••••")
-        role = st.radio("Register as", ["User", "Admin"])
+        email = st.text_input("Email", placeholder="name@example.com", key="register_email")
+        password = st.text_input("Password", type="password", placeholder="••••••••", key="register_password")
+        role = st.radio("Register as", ["User", "Admin"], key="register_role")
 
         super_code = None
         if role == "Admin":
@@ -239,9 +239,9 @@ footer {visibility: hidden;}
                 '<div class="info-box">Admin registration requires a super password</div>',
                 unsafe_allow_html=True
             )
-            super_code = st.text_input("Super Password", type="password", placeholder="Enter admin key")
+            super_code = st.text_input("Super Password", type="password", placeholder="Enter admin key", key="register_super_password")
 
-        if st.button("Create Account", use_container_width=True):
+        if st.button("Create Account", use_container_width=True, key="register_button"):
             if not email or not password:
                 st.error("Please enter both email and password")
             elif role == "Admin" and super_code != SUPER_ADMIN_PASSWORD:

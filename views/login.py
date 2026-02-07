@@ -1,5 +1,6 @@
 import streamlit as st
 from db import validate_user
+from auth.jwt_utils import create_token
 
 def login_page():
     # ───────────────────────────────────────────────
@@ -195,19 +196,26 @@ footer {visibility: hidden;}
         
         st.markdown('<div class="login-title">Sign In</div>', unsafe_allow_html=True)
         
-        email = st.text_input("Email", placeholder="name@example.com")
-        password = st.text_input("Password", type="password", placeholder="••••••••")
+        email = st.text_input("Email", placeholder="name@example.com", key="login_email")
+        password = st.text_input("Password", type="password", placeholder="••••••••", key="login_password")
         
-        if st.button("Login", use_container_width=True):
+        if st.button("Login", use_container_width=True, key="login_button"):
             if not email or not password:
                 st.error("Please enter both email and password")
             else:
                 with st.spinner("Authenticating..."):
                     user = validate_user(email, password)
+
                     if user:
-                        st.session_state.logged_in = True
-                        st.session_state.role = user.get("role", "user")
-                        st.session_state.email = user["email"]
+                        #  CREATE JWT TOKEN
+                        token = create_token(
+                            user["email"],
+                            user.get("role", "user")
+                        )
+
+                        #  STORE TOKEN
+                        st.session_state.jwt = token
+
                         st.success("Login successful!")
                         st.rerun()
                     else:
